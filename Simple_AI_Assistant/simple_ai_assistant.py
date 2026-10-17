@@ -5,12 +5,12 @@ import os
 load_dotenv()
 
 client = OpenAI(
-    base_url=os.get_env("BASE_URL"),
-    api_key=os.get_env("API_KEY")
+    base_url=os.getenv("BASE_URL"),
+    api_key=os.getenv("API_KEY")
 )
 
 response = client.chat.completions.create(
-    model=os.get_env("MODEL"),
+    model=os.getenv("MODEL"),
     messages=[
         {
             "role": "user",
