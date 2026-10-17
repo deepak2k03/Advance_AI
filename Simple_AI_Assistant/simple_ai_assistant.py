@@ -1,13 +1,16 @@
-
 from openai import OpenAI
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 client = OpenAI(
-    base_url="http://127.0.0.1:11434/v1",
-    api_key="dummy_key"
+    base_url=os.get_env("BASE_URL"),
+    api_key=os.get_env("API_KEY")
 )
 
 response = client.chat.completions.create(
-    model="qwen3:4b",
+    model=os.get_env("MODEL"),
     messages=[
         {
             "role": "user",
