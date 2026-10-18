@@ -1,0 +1,22 @@
+from datetime import datetime
+
+def get_current_time():
+    return datetime.now().strftime("%Y-%m-%d %H:%M:%S");
+
+print(get_current_time())
+
+
+TOOLS=[
+    {
+        "type":"function",
+        "function":{
+            "name":"get_current_time",
+            "description":"Returns the current date and time as a formatted string",
+            "parameters":{
+                "type":"object",
+                "properties":{},
+
+            }
+        }
+    }
+]
