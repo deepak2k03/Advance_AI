@@ -11,6 +11,10 @@ def get_city_weather(city):
     response=requests.get(url,timeout=10)
     return response.text
 
+
+def get_user_city():
+    return "Noida"
+
 TOOLS=[
     {
         "type":"function",
@@ -20,30 +24,43 @@ TOOLS=[
             "parameters":{
                 "type":"object",
                 "properties":{},
-
             }
         }
     },
+
     {
-            "type":"function",
-            "function":{
-                "name":"get_city_weather",
-                "description":"Returns the current weather for a given city.",
-                "parameters":{
-                    "type":"object",
-                    "properties":{
-                        "city":{
-                            "type":"string",
-                            "description":"City to get weather for."
-                        }
-                    },
-    
-                }
+        "type":"function",
+        "function":{
+            "name":"get_city_weather",
+            "description":"Returns the current weather for a given city.",
+            "parameters":{
+                "type":"object",
+                "properties":{
+                    "city":{
+                        "type":"string",
+                        "description":"City to get weather for."
+                    }
+                },    
             }
         }
+    },
+
+    {
+        "type":"function",
+        "function":{
+            "name":"get_user_city",
+            "description":"Returns the current city where the user lives.",
+            "parameters":{
+                "type":"object",
+                "properties":{},
+            }
+        }
+    }
+
 ]
 
 FUNCTION_NAME_TO_FUNCTION_MAP={
     "get_current_time":get_current_time,
     "get_city_weather":get_city_weather,
+    "get_user_city":get_user_city,
 }

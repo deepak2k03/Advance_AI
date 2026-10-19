@@ -21,8 +21,8 @@ messages.append(
     }
 )
 
-#infinite chat implementation
-while True:
+
+while True: #infinite chat implementation
 
     user_input = input("\nDeepak: ");
 
@@ -37,16 +37,21 @@ while True:
         }
     )
 
-    response = client.chat.completions.create(
-        model=os.getenv("MODEL"),
-        messages=messages,
-        tools=TOOLS
-    )
 
-    #variable to store
-    msg=response.choices[0].message
+    while True: #check for chained tool calls
+        
+        response = client.chat.completions.create(
+            model=os.getenv("MODEL"),
+            messages=messages,
+            tools=TOOLS
+        )
+        
+        #variable to store
+        msg=response.choices[0].message
 
-    if msg.tool_calls:
+        if not msg.tool_calls:
+            break
+        
         messages.append(msg)
 
         for tool_call in msg.tool_calls:
@@ -62,15 +67,6 @@ while True:
                 "content":str(result)
 
             })
-
-        #2nd call to LLM API
-        response=client.chat.completions.create(
-            model=os.getenv("MODEL"),
-            messages=messages,
-            tools=TOOLS
-        )
-
-        msg=response.choices[0].message
 
     messages.append(
         {
