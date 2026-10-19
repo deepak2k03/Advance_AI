@@ -13,6 +13,9 @@ client = OpenAI(
 
 messages = []
 
+#to stop infinite tool calling
+MAX_STEPS=5
+
 #setting up nature of responses of LLM via system
 messages.append(
     {
@@ -38,7 +41,7 @@ while True: #infinite chat implementation
     )
 
 
-    while True: #check for chained tool calls
+    for step in range(MAX_STEPS): #check for chained tool calls
         
         response = client.chat.completions.create(
             model=os.getenv("MODEL"),
@@ -56,10 +59,14 @@ while True: #infinite chat implementation
 
         for tool_call in msg.tool_calls:
             func_name=tool_call.function.name
-            func_args=json.loads(tool_call.function.arguments or "{}")
+            func_args={}
 
-            fn = FUNCTION_NAME_TO_FUNCTION_MAP[func_name]
-            result = fn(**func_args)
+            try:
+                func_args=json.loads(tool_call.function.arguments or "{}")
+                fn = FUNCTION_NAME_TO_FUNCTION_MAP[func_name]
+                result = fn(**func_args)
+            except Exception as e:
+                result=f"Erro while running {func_name} : {e}"
 
             messages.append({
                 "role":"tool",
@@ -67,6 +74,16 @@ while True: #infinite chat implementation
                 "content":str(result)
 
             })
+    else : 
+        # else block is for model never gave answer
+        fallback = "Sorry! I couldn't finish this within the step limit."
+        messages.append({
+            "role":"assistant",
+            "content":fallback
+        })
+
+        print("Assistant: " + fallback)
+        continue
 
     messages.append(
         {
