@@ -92,6 +92,6 @@ while True: #infinite chat implementation
         }
     )
 
-    print("Assistant: " + msg.content)
+    print("Assistant: " + (msg.content or ""))
 
 
