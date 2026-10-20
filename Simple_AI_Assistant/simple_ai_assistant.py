@@ -1,6 +1,7 @@
 from openai import OpenAI
 from dotenv import load_dotenv
 from tools import TOOLS, FUNCTION_NAME_TO_FUNCTION_MAP
+from Utilities.utilities import log
 import json
 import os
 
@@ -27,7 +28,7 @@ messages.append(
 
 while True: #infinite chat implementation
 
-    user_input = input("\nDeepak: ");
+    user_input = input("\n🧑 Deepak: ");
 
     if user_input.lower() in ["exit", "quit", "bye"]:
         break
@@ -54,7 +55,9 @@ while True: #infinite chat implementation
 
         if not msg.tool_calls:
             break
-        
+
+        log(f"Step {step+1}: model requested {len(msg.tool_calls)} tool call(s)")
+
         messages.append(msg)
 
         for tool_call in msg.tool_calls:
@@ -63,10 +66,13 @@ while True: #infinite chat implementation
 
             try:
                 func_args=json.loads(tool_call.function.arguments or "{}")
+                log(f"🔧 {func_name}({func_args})")
                 fn = FUNCTION_NAME_TO_FUNCTION_MAP[func_name]
                 result = fn(**func_args)
             except Exception as e:
                 result=f"Erro while running {func_name} : {e}"
+
+            log(f"   ⤷ {result}")
 
             messages.append({
                 "role":"tool",
@@ -82,7 +88,7 @@ while True: #infinite chat implementation
             "content":fallback
         })
 
-        print("Assistant: " + fallback)
+        print("🤖 Assistant: " + fallback)
         continue
 
     messages.append(
@@ -92,6 +98,6 @@ while True: #infinite chat implementation
         }
     )
 
-    print("Assistant: " + (msg.content or ""))
+    print("🤖 Assistant: " + (msg.content or ""))
 
 
