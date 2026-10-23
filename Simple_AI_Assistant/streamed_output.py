@@ -15,7 +15,10 @@ stream = client.chat.completions.create(
     stream=True,
 )
 
+full_response=""
+
 for chunk in stream:
     piece = chunk.choices[0].delta.content
     if piece:
         print(piece, end="", flush=True)
+        full_response+=piece
