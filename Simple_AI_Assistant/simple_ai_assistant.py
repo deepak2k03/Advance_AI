@@ -1,9 +1,14 @@
+#Standard library imports
+import os
+
+#Third-party imports
 from openai import OpenAI
 from dotenv import load_dotenv
-from tools import TOOLS, FUNCTION_NAME_TO_FUNCTION_MAP
+
+#Local Modules
+from tools import TOOLS, run_tool
 from Utilities.utilities import log
-import json
-import os
+
 
 load_dotenv()
 
@@ -21,7 +26,10 @@ MAX_STEPS=5
 messages.append(
     {
         "role":"system",
-        "content":"Always act like a humble agent and respond always under 20 words"
+        "content":"You are a helpful humble assistant>"
+        "Answer general questions (programming, science, advice) from your own knowledge."
+        "Use a tool ONLY when the user asks for current time, the weather or the city."
+        "Keep answers under 100 words."
     }
 )
 
@@ -61,19 +69,9 @@ while True: #infinite chat implementation
         messages.append(msg)
 
         for tool_call in msg.tool_calls:
-            func_name=tool_call.function.name
-            func_args={}
 
-            try:
-                func_args=json.loads(tool_call.function.arguments or "{}")
-                log(f"🔧 {func_name}({func_args})")
-                fn = FUNCTION_NAME_TO_FUNCTION_MAP[func_name]
-                result = fn(**func_args)
-            except Exception as e:
-                result=f"Erro while running {func_name} : {e}"
-
-            log(f"   ⤷ {result}")
-
+            result = run_tool(tool_call)
+            
             messages.append({
                 "role":"tool",
                 "tool_call_id":tool_call.id,
