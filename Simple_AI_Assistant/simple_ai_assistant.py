@@ -46,31 +46,37 @@ def stream_chat(history):
     calls={}
     label_printed=False
 
-    for chunk in stream:
-        if not chunk.choices:
-            continue
-        delta=chunk.choices[0].delta
+    #streaming started
+    try:
+        for chunk in stream:
+            if not chunk.choices:
+                continue
+            delta=chunk.choices[0].delta
 
-        #1. content straeaming - do we have messages from the LLM
-        if delta.content:
-            if not label_printed:
-                print("🤖 Assistant: ", end="", flush=True)
-                label_printed=True
-            print(delta.content, end="", flush=True)
-            full_response+=delta.content
+            #1. content straeaming - do we have messages from the LLM
+            if delta.content:
+                if not label_printed:
+                    print("🤖 Assistant: ", end="", flush=True)
+                    label_printed=True
+                print(delta.content, end="", flush=True)
+                full_response+=delta.content
 
-        #2. Tool calls
-        for tc in (delta.tool_calls or []):
-            obj = calls.setdefault(
-                tc.index,
-                SimpleNamespace(id=None, function=SimpleNamespace(name="", arguments="")),
-            )
-            if tc.id:
-                obj.id = tc.id
-            if tc.function and tc.function.name:
-                obj.function.name += tc.function.name
-            if tc.function and tc.function.arguments:
-                obj.function.arguments += tc.function.arguments
+            #2. Tool calls
+            for tc in (delta.tool_calls or []):
+                obj = calls.setdefault(
+                    tc.index,
+                    SimpleNamespace(id=None, function=SimpleNamespace(name="", arguments="")),
+                )
+                if tc.id:
+                    obj.id = tc.id
+                if tc.function and tc.function.name:
+                    obj.function.name += tc.function.name
+                if tc.function and tc.function.arguments:
+                    obj.function.arguments += tc.function.arguments
+    
+    except KeyboardInterrupt:
+        print("\n {Stopped by you}")
+        calls={}
 
     if label_printed:
         print() #move to the next line aftere assistant's response
