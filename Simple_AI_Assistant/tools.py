@@ -1,6 +1,7 @@
 from datetime import datetime
 import requests
 import json
+from rag import search
 from Utilities.utilities import log
 
 
@@ -18,6 +19,25 @@ def get_city_weather(city):
 
 def get_user_city():
     return "Noida"
+
+def search_knowledge_base(query):
+    results = search(query, top_k=2)
+
+    log(f"📚 Knowledge base search: {query}")
+    for r in results:
+        log(f"   {r['score']:.2f} - {r['source']} #{r['chunk_id']}")
+
+    blocks = []
+    for r in results:
+        sourceFileName = r['source']
+        chunkId = r['chunk_id']
+        chunkText = r['text']
+
+        header = f"[{sourceFileName} #{chunkId}]"
+        block = f"{header}\n{chunkText}"
+        blocks.append(block)
+
+    return "\n\n".join(blocks)
 
 TOOLS=[
     {
@@ -60,14 +80,34 @@ TOOLS=[
                 "properties":{},
             }
         }
-    }
+    },
 
+    {
+        "type":"function",
+        "function":{
+            "name":"search_knowledge_base",
+            "description":"Searches the CareeQuant company knowledge base: leave, medicalm HR, hiring, tech, incident"
+                          "reports and travel expense policies. Use it for any question about company policies or documents."
+                          "returns the most relevant passages with their source.",
+            "parameters":{
+                "type":"object",
+                "properties":{
+                    "query":{
+                        "type":"string",
+                        "description":"The user's question, rewritten as short self contained search query.",
+                    }
+                },
+                "required":["query"],
+            }
+        }
+    }
 ]
 
 FUNCTION_NAME_TO_FUNCTION_MAP={
     "get_current_time":get_current_time,
     "get_city_weather":get_city_weather,
     "get_user_city":get_user_city,
+    "search_knowledge_base":search_knowledge_base,
 }
 
 def run_tool(tool_call):

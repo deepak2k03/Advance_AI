@@ -144,6 +144,7 @@ else:
     save_vector_store(chunks)
     print(f"Created and embedded {len(chunks)} chunks and saved to the vector store file {VECTOR_STORE_FILE}")
 
+
 print(f"We have embedded {len(chunks)} chunks from our knowledge base")
 
 user_query = "What are the benefits of maternity leave ?"
